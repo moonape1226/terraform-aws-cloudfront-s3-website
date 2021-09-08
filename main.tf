@@ -112,6 +112,95 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     }
   }
 
+  dynamic "origin" {
+    for_each = var.extra_origin
+    iterator = i
+
+    content {
+      domain_name         = i.value.domain_name
+      origin_id           = lookup(i.value, "origin_id", i.key)
+      origin_path         = lookup(i.value, "origin_path", "")
+
+      dynamic "s3_origin_config" {
+        for_each = length(keys(lookup(i.value, "s3_origin_config", {}))) == 0 ? [] : [lookup(i.value, "s3_origin_config", {})]
+
+        content {
+          origin_access_identity = lookup(s3_origin_config.value, "cloudfront_access_identity_path", lookup(lookup(aws_cloudfront_origin_access_identity.this, lookup(s3_origin_config.value, "origin_access_identity", ""), {}), "cloudfront_access_identity_path", null))
+        }
+      }
+
+      dynamic "custom_origin_config" {
+        for_each = length(lookup(i.value, "custom_origin_config", "")) == 0 ? [] : [lookup(i.value, "custom_origin_config", "")]
+
+        content {
+          http_port                = custom_origin_config.value.http_port
+          https_port               = custom_origin_config.value.https_port
+          origin_protocol_policy   = custom_origin_config.value.origin_protocol_policy
+          origin_ssl_protocols     = custom_origin_config.value.origin_ssl_protocols
+          origin_keepalive_timeout = lookup(custom_origin_config.value, "origin_keepalive_timeout", null)
+          origin_read_timeout      = lookup(custom_origin_config.value, "origin_read_timeout", null)
+        }
+      }
+
+      dynamic "custom_header" {
+        for_each = lookup(i.value, "custom_header", [])
+
+        content {
+          name  = custom_header.value.name
+          value = custom_header.value.value
+        }
+      }
+    }
+  }
+
+  dynamic "ordered_cache_behavior" {
+    for_each = var.ordered_cache_behavior
+    iterator = i
+
+    content {
+      path_pattern           = i.value["path_pattern"]
+      target_origin_id       = i.value["target_origin_id"]
+      viewer_protocol_policy = i.value["viewer_protocol_policy"]
+
+      allowed_methods           = lookup(i.value, "allowed_methods", ["GET", "HEAD", "OPTIONS"])
+      cached_methods            = lookup(i.value, "cached_methods", ["GET", "HEAD"])
+      compress                  = lookup(i.value, "compress", null)
+      field_level_encryption_id = lookup(i.value, "field_level_encryption_id", null)
+      smooth_streaming          = lookup(i.value, "smooth_streaming", null)
+      trusted_signers           = lookup(i.value, "trusted_signers", null)
+
+      min_ttl     = lookup(i.value, "min_ttl", null)
+      default_ttl = lookup(i.value, "default_ttl", null)
+      max_ttl     = lookup(i.value, "max_ttl", null)
+
+      dynamic "forwarded_values" {
+        for_each = lookup(i.value, "use_forwarded_values", true) ? [true] : []
+
+        content {
+          query_string            = lookup(i.value, "query_string", false)
+          query_string_cache_keys = lookup(i.value, "query_string_cache_keys", [])
+          headers                 = lookup(i.value, "headers", [])
+
+          cookies {
+            forward           = lookup(i.value, "cookies_forward", "none")
+            whitelisted_names = lookup(i.value, "cookies_whitelisted_names", null)
+          }
+        }
+      }
+
+      dynamic "lambda_function_association" {
+        for_each = lookup(i.value, "lambda_function_association", [])
+        iterator = l
+
+        content {
+          event_type   = l.key
+          lambda_arn   = l.value.lambda_arn
+          include_body = lookup(l.value, "include_body", null)
+        }
+      }
+    }
+  }
+
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.html"

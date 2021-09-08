@@ -44,3 +44,15 @@ variable "upload_sample_file" {
   default     = false
   description = "Upload sample html file to s3 bucket"
 }
+
+variable "extra_origin" {
+  description = "One or more extra origins for this distribution (multiples allowed)."
+  type        = any
+  default     = []
+}
+
+variable "ordered_cache_behavior" {
+  description = "An ordered list of cache behaviors resource for this distribution. List from top to bottom in order of precedence. The topmost cache behavior will have precedence 0."
+  type        = any
+  default     = []
+}
