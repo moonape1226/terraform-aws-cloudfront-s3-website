@@ -44,15 +44,26 @@ data "aws_iam_policy_document" "s3_bucket_policy" {
 resource "aws_s3_bucket" "s3_bucket" {
   bucket = var.domain_name
   acl    = "private"
+  policy = data.aws_iam_policy_document.s3_bucket_policy.json
+
   versioning {
     enabled = true
   }
-  policy = data.aws_iam_policy_document.s3_bucket_policy.json
-  tags   = var.tags
+  
+  cors_rule {
+    allowed_headers = var.cors_allowed_headers
+    allowed_methods = var.cors_allowed_methods
+    allowed_origins = var.cors_allowed_origins
+    expose_headers  = var.cors_expose_headers
+    max_age_seconds = var.cors_max_age_seconds
+  }
+
   website {
     index_document = var.website_index
     error_document = var.website_error
   }
+
+  tags = var.tags
 }
 
 resource "aws_s3_bucket_object" "object" {
