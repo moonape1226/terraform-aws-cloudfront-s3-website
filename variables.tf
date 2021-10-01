@@ -56,3 +56,28 @@ variable "ordered_cache_behavior" {
   type        = any
   default     = []
 }
+
+variable "cors_allowed_headers" {
+  default = ["*"]
+  type    = list(string)
+}
+
+variable "cors_allowed_methods" {
+  default = ["GET"]
+  type    = list(string)
+}
+
+variable "cors_allowed_origins" {
+  default = ["*"]
+  type    = list(string)
+}
+
+variable "cors_expose_headers" {
+  default = ["ETag"]
+  type    = list(string)
+}
+
+variable "cors_max_age_seconds" {
+  default = 3000
+  type    = number
+}
