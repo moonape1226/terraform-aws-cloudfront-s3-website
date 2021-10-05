@@ -49,13 +49,13 @@ resource "aws_s3_bucket" "s3_bucket" {
   versioning {
     enabled = true
   }
-  
+
   cors_rule {
-    allowed_headers = var.cors_allowed_headers
-    allowed_methods = var.cors_allowed_methods
-    allowed_origins = var.cors_allowed_origins
-    expose_headers  = var.cors_expose_headers
-    max_age_seconds = var.cors_max_age_seconds
+    allowed_headers = var.s3_cors_allowed_headers
+    allowed_methods = var.s3_cors_allowed_methods
+    allowed_origins = var.s3_cors_allowed_origins
+    expose_headers  = var.s3_cors_expose_headers
+    max_age_seconds = var.s3_cors_max_age_seconds
   }
 
   website {
@@ -128,9 +128,9 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     iterator = i
 
     content {
-      domain_name         = i.value.domain_name
-      origin_id           = lookup(i.value, "origin_id", i.key)
-      origin_path         = lookup(i.value, "origin_path", "")
+      domain_name = i.value.domain_name
+      origin_id   = lookup(i.value, "origin_id", i.key)
+      origin_path = lookup(i.value, "origin_path", "")
 
       dynamic "s3_origin_config" {
         for_each = length(keys(lookup(i.value, "s3_origin_config", {}))) == 0 ? [] : [lookup(i.value, "s3_origin_config", {})]
@@ -170,8 +170,8 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 
     content {
       path_pattern           = i.value["path_pattern"]
-      target_origin_id       = i.value["target_origin_id"]
-      viewer_protocol_policy = i.value["viewer_protocol_policy"]
+      target_origin_id       = lookup(i.value, "target_origin_id", "S3-Website-${aws_s3_bucket.s3_bucket.website_endpoint}")
+      viewer_protocol_policy = lookup(i.value, "viewer_protocol_policy", "redirect-to-https")
 
       allowed_methods           = lookup(i.value, "allowed_methods", ["GET", "HEAD", "OPTIONS"])
       cached_methods            = lookup(i.value, "cached_methods", ["GET", "HEAD"])
@@ -219,30 +219,31 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   aliases = local.domain_name
 
   default_cache_behavior {
-    allowed_methods = [
-      "GET",
-      "HEAD",
-    ]
 
-    cached_methods = [
-      "GET",
-      "HEAD",
-    ]
+    target_origin_id         = "S3-Website-${aws_s3_bucket.s3_bucket.website_endpoint}"
+    cache_policy_id          = var.cache_policy_id
+    origin_request_policy_id = var.origin_request_policy_id
+    allowed_methods          = var.allowed_methods
+    cached_methods           = var.cached_methods
 
-    target_origin_id = "S3-Website-${aws_s3_bucket.s3_bucket.website_endpoint}"
+    viewer_protocol_policy = var.viewer_protocol_policy
+    min_ttl                = var.min_ttl
+    default_ttl            = var.default_ttl
+    max_ttl                = var.max_ttl
 
-    forwarded_values {
-      query_string = false
+    dynamic "forwarded_values" {
+      # If a cache policy is specified, we cannot include a `forwarded_values` block at all in the API request
+      for_each = var.cache_policy_id == null ? [true] : []
+      content {
+        query_string            = var.forward_query_string
+        query_string_cache_keys = var.query_string_cache_keys
+        headers                 = var.forward_header_values
 
-      cookies {
-        forward = "none"
+        cookies {
+          forward = var.forward_cookies
+        }
       }
     }
-
-    viewer_protocol_policy = "redirect-to-https"
-    min_ttl                = 0
-    default_ttl            = 86400
-    max_ttl                = 31536000
   }
 
   price_class = var.price_class
