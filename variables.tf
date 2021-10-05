@@ -57,27 +57,67 @@ variable "ordered_cache_behavior" {
   default     = []
 }
 
-variable "cors_allowed_headers" {
+variable "cache_policy_id" {
+  type    = string
+  default = null
+}
+
+variable "origin_request_policy_id" {
+  type    = string
+  default = null
+}
+
+variable "allowed_methods" {
+  default = ["GET", "HEAD"]
+  type    = list(string)
+}
+
+variable "cached_methods" {
+  default = ["GET", "HEAD"]
+  type    = list(string)
+}
+
+variable "min_ttl" {
+  default = 0
+  type    = number
+}
+
+variable "default_ttl" {
+  default = 0
+  type    = number
+}
+
+variable "max_ttl" {
+  default = 0
+  type    = number
+}
+
+variable "viewer_protocol_policy" {
+  type    = string
+  default = "redirect-to-https"
+}
+
+variable "s3_cors_allowed_headers" {
   default = ["*"]
   type    = list(string)
 }
 
-variable "cors_allowed_methods" {
+variable "s3_cors_allowed_methods" {
   default = ["GET"]
   type    = list(string)
 }
 
-variable "cors_allowed_origins" {
+variable "s3_cors_allowed_origins" {
   default = ["*"]
   type    = list(string)
 }
 
-variable "cors_expose_headers" {
+variable "s3_cors_expose_headers" {
   default = ["ETag"]
   type    = list(string)
 }
 
-variable "cors_max_age_seconds" {
+variable "s3_cors_max_age_seconds" {
   default = 3000
   type    = number
 }
