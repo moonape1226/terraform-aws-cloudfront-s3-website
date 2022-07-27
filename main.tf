@@ -43,13 +43,21 @@ data "aws_iam_policy_document" "s3_bucket_policy" {
 
 resource "aws_s3_bucket" "s3_bucket" {
   bucket = var.domain_name
-  acl    = "private"
-  policy = data.aws_iam_policy_document.s3_bucket_policy.json
+  tags = var.tags
+}
 
-  versioning {
-    enabled = true
+resource "aws_s3_bucket_website_configuration" "bucket-website" {
+  bucket = aws_s3_bucket.s3_bucket.id
+  index_document {
+    suffix = var.website_index
   }
+  error_document {
+    key = var.website_error
+  }
+}
 
+resource "aws_s3_bucket_cors_configuration" "bucket-cors" {
+  bucket = aws_s3_bucket.s3_bucket.id
   cors_rule {
     allowed_headers = var.s3_cors_allowed_headers
     allowed_methods = var.s3_cors_allowed_methods
@@ -57,17 +65,21 @@ resource "aws_s3_bucket" "s3_bucket" {
     expose_headers  = var.s3_cors_expose_headers
     max_age_seconds = var.s3_cors_max_age_seconds
   }
-
-  website {
-    index_document = var.website_index
-    error_document = var.website_error
-  }
-
-  tags = var.tags
 }
 
-resource "aws_s3_bucket_object" "object" {
-  count        = var.upload_sample_file ? 1 : 0
+resource "aws_s3_bucket_policy" "bucket-policy" {
+  bucket = aws_s3_bucket.s3_bucket.id
+  policy = data.aws_iam_policy_document.s3_bucket_policy.json
+}
+
+resource "aws_s3_bucket_versioning" "bucket-versioning" {
+  bucket = aws_s3_bucket.s3_bucket.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_object" "object" {
   bucket       = aws_s3_bucket.s3_bucket.bucket
   key          = "index.html"
   source       = "${path.module}/index.html"
