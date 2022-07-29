@@ -83,12 +83,12 @@ variable "min_ttl" {
 }
 
 variable "default_ttl" {
-  default = 0
+  default = 86400
   type    = number
 }
 
 variable "max_ttl" {
-  default = 0
+  default = 31536000
   type    = number
 }
 
