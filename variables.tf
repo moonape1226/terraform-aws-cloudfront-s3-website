@@ -92,6 +92,32 @@ variable "max_ttl" {
   type    = number
 }
 
+variable "forward_query_string" {
+  type        = bool
+  default     = false
+  description = "Enable query string cache in default cache behavior"
+}
+
+variable "query_string_cache_keys" {
+  default     = []
+  description = "Which query strings will be cached in default cache behavior"
+}
+
+variable "forward_header_values" {
+  default     = []
+  description = "Which headers will be cached in default cache behavior"
+}
+
+variable "forward_cookies" {
+  default     = "none"
+  description = "Which cookies will be cached in default cache behavior"
+}
+
+variable "forward_cookies_whitelist_name" {
+  default     = []
+  description = "Which cookies will be cached in default cache behavior if forward_cookies value is whitelist"
+}
+
 variable "viewer_protocol_policy" {
   type    = string
   default = "redirect-to-https"
