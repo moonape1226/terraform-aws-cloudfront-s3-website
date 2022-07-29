@@ -43,7 +43,7 @@ data "aws_iam_policy_document" "s3_bucket_policy" {
 
 resource "aws_s3_bucket" "s3_bucket" {
   bucket = var.domain_name
-  tags = var.tags
+  tags   = var.tags
 }
 
 resource "aws_s3_bucket_website_configuration" "bucket-website" {
@@ -80,6 +80,7 @@ resource "aws_s3_bucket_versioning" "bucket-versioning" {
 }
 
 resource "aws_s3_object" "object" {
+  count        = var.upload_sample_file ? 1 : 0
   bucket       = aws_s3_bucket.s3_bucket.bucket
   key          = "index.html"
   source       = "${path.module}/index.html"
