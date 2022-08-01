@@ -51,8 +51,11 @@ resource "aws_s3_bucket_website_configuration" "bucket-website" {
   index_document {
     suffix = var.website_index
   }
-  error_document {
-    key = var.website_error
+  dynamic "error_document" {
+    for_each = var.website_error != null ? [true] : []
+    content {
+      key = var.website_error
+    }
   }
 }
 
