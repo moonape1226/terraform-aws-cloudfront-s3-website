@@ -122,8 +122,8 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   ]
 
   origin {
-    domain_name = aws_s3_bucket.s3_bucket.website_endpoint
-    origin_id   = "S3-Website-${aws_s3_bucket.s3_bucket.website_endpoint}"
+    domain_name = aws_s3_bucket_website_configuration.bucket-website.website_endpoint
+    origin_id   = "S3-Website-${aws_s3_bucket_website_configuration.bucket-website.website_endpoint}"
 
     custom_origin_config {
       http_port                = 80
@@ -186,7 +186,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 
     content {
       path_pattern           = i.value["path_pattern"]
-      target_origin_id       = lookup(i.value, "target_origin_id", "S3-Website-${aws_s3_bucket.s3_bucket.website_endpoint}")
+      target_origin_id       = lookup(i.value, "target_origin_id", "S3-Website-${aws_s3_bucket_website_configuration.bucket-website.website_endpoint}")
       viewer_protocol_policy = lookup(i.value, "viewer_protocol_policy", "redirect-to-https")
 
       allowed_methods           = lookup(i.value, "allowed_methods", ["GET", "HEAD", "OPTIONS"])
@@ -236,7 +236,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 
   default_cache_behavior {
 
-    target_origin_id         = "S3-Website-${aws_s3_bucket.s3_bucket.website_endpoint}"
+    target_origin_id         = "S3-Website-${aws_s3_bucket_website_configuration.bucket-website.website_endpoint}"
     cache_policy_id          = var.cache_policy_id
     origin_request_policy_id = var.origin_request_policy_id
     allowed_methods          = var.allowed_methods
