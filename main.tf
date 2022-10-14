@@ -98,13 +98,15 @@ data "aws_route53_zone" "domain_name" {
 }
 
 resource "aws_route53_record" "route53_record" {
-  count = var.use_default_domain ? 0 : 1
+  #count = var.use_default_domain ? 0 : len(local.domain_name)
+  for_each = toset(local.domain_name)
+
   depends_on = [
     aws_cloudfront_distribution.s3_distribution
   ]
 
   zone_id = data.aws_route53_zone.domain_name[0].zone_id
-  name    = var.domain_name
+  name    = each.key
   type    = "A"
 
   alias {
