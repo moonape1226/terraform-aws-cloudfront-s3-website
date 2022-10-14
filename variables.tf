@@ -2,6 +2,10 @@ variable "domain_name" {
   description = "domain name (or application name if no domain name available)"
 }
 
+variable "alias_name" {
+  description = "alias name"
+}
+
 variable "website_index" {
   type        = string
   default     = "index.html"
