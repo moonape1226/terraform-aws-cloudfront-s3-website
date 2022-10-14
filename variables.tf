@@ -3,6 +3,8 @@ variable "domain_name" {
 }
 
 variable "alias_name" {
+  type        = string
+  default     = null
   description = "alias name"
 }
 
