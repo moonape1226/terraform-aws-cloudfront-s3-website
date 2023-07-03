@@ -3,7 +3,7 @@ variable "domain_name" {
 }
 
 variable "alias_name" {
-  type        = string
+  type        = list(string)
   default     = null
   description = "alias name"
 }
