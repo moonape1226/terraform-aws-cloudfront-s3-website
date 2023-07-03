@@ -6,7 +6,7 @@ provider "aws" {
 locals {
   default_certs = var.use_default_domain ? ["default"] : []
   acm_certs     = var.use_default_domain ? [] : ["acm"]
-  domain_name   = var.use_default_domain ? [] : (var.alias_name == null ? [var.domain_name] : concat([var.domain_name], [var.alias_name]))
+  domain_name   = var.use_default_domain ? [] : (var.alias_name == null ? [var.domain_name] : concat([var.domain_name], var.alias_name))
 }
 
 data "aws_acm_certificate" "acm_cert" {
