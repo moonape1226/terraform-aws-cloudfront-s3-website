@@ -153,3 +153,8 @@ variable "s3_cors_max_age_seconds" {
   default = 3000
   type    = number
 }
+
+variable "s3_public_accessible" {
+  default = false
+  type    = bool
+}
