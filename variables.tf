@@ -163,3 +163,8 @@ variable "custom_s3_bucket_policy" {
   type    = string
   default = null
 }
+
+variable "custom_header" {
+  type    = any
+  default = []
+}

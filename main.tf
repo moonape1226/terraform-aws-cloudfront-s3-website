@@ -163,6 +163,16 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
         "TLSv1.2"
       ]
     }
+
+    dynamic "custom_header" {
+      for_each = var.custom_header
+      iterator = i
+
+      content {
+        name  = i.value["name"]
+        value = i.value["value"]
+      }
+    }
   }
 
   dynamic "origin" {
