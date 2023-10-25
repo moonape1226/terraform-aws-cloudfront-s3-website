@@ -247,7 +247,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
         iterator = l
 
         content {
-          event_type   = l.key
+          event_type   = l.value.event_type
           lambda_arn   = l.value.lambda_arn
           include_body = lookup(l.value, "include_body", null)
         }
