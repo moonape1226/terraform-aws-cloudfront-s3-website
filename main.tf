@@ -97,7 +97,7 @@ resource "aws_s3_bucket_cors_configuration" "bucket-cors" {
 
 resource "aws_s3_bucket_policy" "bucket-policy" {
   bucket = aws_s3_bucket.s3_bucket.id
-  policy = data.aws_iam_policy_document.s3_bucket_policy.json
+  policy = var.custom_s3_bucket_policy == null ? data.aws_iam_policy_document.s3_bucket_policy.json : var.custom_s3_bucket_policy
 }
 
 resource "aws_s3_bucket_versioning" "bucket-versioning" {

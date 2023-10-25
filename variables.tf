@@ -158,3 +158,8 @@ variable "s3_public_accessible" {
   default = false
   type    = bool
 }
+
+variable "custom_s3_bucket_policy" {
+  type    = string
+  default = null
+}
