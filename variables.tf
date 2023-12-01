@@ -168,3 +168,8 @@ variable "custom_header" {
   type    = any
   default = []
 }
+
+variable "custom_error_response_path" {
+  type    = string
+  default = "/index.html"
+}
